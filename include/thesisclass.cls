@@ -62,11 +62,14 @@
                                                 % can't search for non-ascii 
                                                 % chars in pdf otherwise)
 \usepackage{lmodern}                            % the font used by T1 font enc
-\usepackage[protrusion=true,                    % microtype package for better 
-            expansion,                          % line breaks, kerning, etc.
-            tracking,
-            kerning,
-            spacing]{microtype}
+%\usepackage[protrusion=true,                    % microtype package for better 
+%            expansion,                          % line breaks, kerning, etc.
+%            tracking,
+%            kerning,
+%            spacing]{microtype}
+\usepackage[protrusion=true,                     
+            expansion,
+            tracking]{microtype}	                   
 \microtypecontext{spacing=nonfrench}            % option for scrbook to allow 
                                                 % microtype->nonfrenchspacing
                                                 % for info on nonfrenchspacing:

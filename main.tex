@@ -23,8 +23,14 @@
 
 \usepackage{standalone}
 
-\usepackage{listing}
+\usepackage{listings}
+\lstdefinestyle{DOS}
+{
+    backgroundcolor=\color{black},
+    basicstyle=\scriptsize\color{white}\ttfamily
+}
 
+\newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}\\}
 
 \usepackage{rotating}
 \usepackage{epsfig}
@@ -50,6 +56,7 @@
 \newcommand{\properparagraph}[1]{\paragraph{\textcolor{black}{#1}}\mbox{}\\}
 
 %%%%%%%%%%%%%%%% Tikz %%%%%%%%%%%%%%%%%
+\usepackage{tikz,tikzscale,pgfplots,pgfplotstable,circuitikz}
 \usepackage{flowchart}
 \usetikzlibrary{shapes.geometric}
 \usetikzlibrary{arrows.meta}
@@ -58,7 +65,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+\usepackage{palatino}
 
 %%% Abkürzungverzeichnis %%%
 \usepackage{nomencl}
@@ -146,7 +153,7 @@
     \listoffigures
     \listoftables
     \endgroup
-    \cleardoublepage
+    %\cleardoublepage
     
     \MainMatter
     \input{chap/inbetriebnahme/inbetriebnahme}

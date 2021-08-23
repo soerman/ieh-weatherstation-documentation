@@ -1,0 +1,17 @@
+\section{Raspberry Pi}
+Dient als ``Brücke'' zwischen Wetterstation bzw. serieller Schnittstelle und DebianVM bzw. MQTT. In einem definierten Intervall holt sich der Pi über die serieller Schnittstelle die aktuellen Daten von der Wetterstation und published diese auf eine MQTT-Topic. 
+
+Im Folgenden werden die Python-Module beschrieben, mit denen diese Funktionalitäten realisiert sind.
+
+\paragraph{Main}
+Dies ist das Kernstück des Programms. Hier werden unter Anderem wichtige Parameter initialisiert (z.B. für serielle Schnittstelle), das Skript zum Auslesen und Sendne der Datan definiert und gestartet.
+\paragraph{dlxMetDatalogger}
+Kapselung des Wetterstations-Datenloggers. Soll das Senden der Datenlogger-Befehle (s. Datenblatt) vereinfachen.
+\paragraph{measurement}
+Kapselt eine ``Aktuelle Werte''-Messung und parsed die erhaltenen Daten in JSON-Format.
+\paragraph{mqttClient}
+Sendet die übergebenen Daten an den MQTT-Broker.
+\paragraph{logger}
+Soll die Erstellung von Logs vereinfachen. Der \texttt{MQTTHandler} published Logs auf MQTT, um diese auf der Webseite anzeigen zu lassen.
+\paragraph{watchdogResetter}
+Klasse zum Resetten des Watchdogs auf dem Pi.

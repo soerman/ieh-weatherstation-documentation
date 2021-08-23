@@ -1,4 +1,12 @@
 \chapter{Allgemeine Struktur}
-Bla ganz toll die einzelnen Sachen erklären. Noch ein Blockdiagramm einfügen.
-\input{chap/general/datenLog/datenLog}
-\input{chap/general/grafana/grafana}
+Das System besteht aus der Wetterstation bzw. deren Datenlogger (DLX Met 9.1756.x0.xxx) , einem Raspberry Pi und einer DebianVM. Die Interaktion der einzelnen Module untereinander ist in \autoref{fig:allg} dargestellt.  
+\begin{center}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 0.6\textwidth]{chap/general/img/genStruct.tikz}
+	\caption{Allgemeine Struktur}
+	\label{fig:allg}
+\end{figure}
+\end{center}
+\input{chap/general/pi/pi}
+\input{chap/general/debianvm/debianvm}

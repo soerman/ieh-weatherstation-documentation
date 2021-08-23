@@ -1,3 +1,14 @@
+\section{Arbeiten mit Containern}
+Um im Container Kommandos auszuführen/zu arbeiten, kann mit dem Befehl
+\begin{verbatim}
+docker exec -it [container-id] bash
+\end{verbatim}
+eine Bash-Shell im entsprechenden Container gestartet werden. Die Container-IDs der aktiven Container können mit 
+\begin{verbatim}
+docker ps
+\end{verbatim}
+aufgelistet werden.
+
 \section{Datalogger DLx-MET}
 
 In \autoref{tbl:anschluesse} sind die Sensoren der Wetterstation und deren jeweiliger Anschluss aufgeführt. In dieser Reihenfolge befinden sich die Daten auch im "'Array"', der geschickt wird, nachdem man einen Auslese-Befehl gesendet hat.

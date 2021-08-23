@@ -1,3 +1,149 @@
 \chapter{Inbetriebnahme}
-\properparagraph{Raspberry Pi}
-\properparagraph{DebianVM}
+Im Folgenden werden die notwendigen (Installations-)Schritte zur Inbetriebnahme des Gesamtsystems auf neu installierten Betriebssystemen beschrieben.
+\section{DebianVM}
+Vor dem Installieren der Pakete ein Update und Upgrade durchführen:
+\begin{verbatim}
+$ sudo apt-get -y update 
+$ sudo apt-get -y upgrade
+$ sudo apt -y autoremove
+\end{verbatim}
+
+\subsection{git}
+\texttt{git} wird mit \verb|$ sudo apt install git| installiert.
+
+\subsection{Docker und Docker-Compose}
+Zur Installation von Docker und Docker-Compose auf Debian zu installieren, sind folgende Schritte durchzuführen\footnote{Siehe \href{https://docs.docker.com/engine/install/debian/}{https://docs.docker.com/engine/install/debian/}}
+\begin{enumerate}
+	\item Pakete installieren, um das Benutzen von Repos über HTTPS zu ermöglichen: 
+	\begin{verbatim}
+$ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+\end{verbatim}
+	\item GPG Schlüssel von Docker hinzufügen:
+	\begin{verbatim}
+	$ curl -fsSL https://download.docker.com/linux/debian/gpg \
+	| sudo apt-key add 
+	\end{verbatim}
+	\item Mit \verb|$ sudo apt-key fingerprint 0EBFCD88| den Fingerprint des Schlüssels überprüfen. Dieser sollte \texttt{9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88} entsprechen.
+	\item Repository hinzufügen:
+	\begin{verbatim}
+	$ sudo add-apt-repository \
+	"deb [arch=amd64] https://download.docker.com/linux/debian \
+	$(lsb_release -cs) \
+	stable"
+	\end{verbatim}
+	\item Docker installieren:
+	\begin{verbatim}
+	 $ sudo apt-get update
+	 $ sudo apt-get install docker-ce docker-ce-cli containerd.io
+	\end{verbatim}
+	\item Docker-Compose:
+	\begin{verbatim}
+	sudo apt install docker-compose
+	\end{verbatim}
+\end{enumerate}
+
+
+\subsection{MQTT/Telegraf/InfluxDB/Grafana-Container}
+Das Repo mit 
+\begin{verbatim}
+git clone 
+https://github.com/youcann/mqttTelegrafInfluxGrafana-dockerCompose.git
+\end{verbatim}
+herunterladen. Ins Verzeichnis wechseln und mit \verb|docker-compose up| die Container starten.
+
+\newpage
+
+\section{Raspberry Pi}
+
+\subsection{git}
+\texttt{git} wird mit \verb|$ sudo apt install git| installiert.\newline
+Im gewünschten Verzeichnis, z.B. im Home-Verzeichnis, das Repo mit 
+\begin{verbatim}
+	$ git clone https://github.com/soerman/sensordataToMQTT.git
+\end{verbatim}
+herunterladen. 
+
+Vor dem Installieren der Pakete ein Update und Upgrade durchführen:
+\begin{verbatim}
+$ sudo apt-get -y update 
+$ sudo apt-get -y upgrade
+$ sudo apt -y autoremove
+\end{verbatim}
+
+\subsection{Feste IP-Adresse und log2ram einstellen}
+In das Repo-Verzeichnis wechseln. Im Ordner \verb|bashScripts| das Skript zum Einstellen der festen IP-Adresse (172.23.62.255) und \texttt{log2ram} mit 
+\begin{verbatim}
+$ bash ip_log2ram.sh
+\end{verbatim}
+ausführen. Anschließend den Pi neustarten.
+
+
+
+
+\subsection{Docker und Docker-Compose}
+Um Docker und Docker-Compose zu installieren folgende Schritte ausführen\footnote{Siehe \href{https://dev.to/rohansawant/installing-docker-and-docker-compose-on-the-raspberry-pi-in-5-simple-steps-3mgl}{https://dev.to/rohansawant/installing-docker-and-docker-compose-on-the-raspberry-pi-in-5-simple-steps-3mgl}}:
+\begin{enumerate}
+	\item Docker installieren:
+	\begin{verbatim}
+		$ curl -sSL https://get.docker.com | sh
+	\end{verbatim}
+	\item Berechtigung für den Nutzer \texttt{pi} erteilen, Docker-Kommandos auszuführen:
+	\begin{verbatim}
+		$ sudo usermod -aG docker pi
+		$ newgrp docker
+	\end{verbatim}
+	\item Test:
+	\begin{verbatim}
+		$ docker run hello-world
+	\end{verbatim}
+	\item Abhängigkeiten installieren:
+	\begin{verbatim}
+		$ sudo apt-get install -y libffi-dev libssl-dev
+		$ sudo apt-get install -y python3 python3-pip
+		$ sudo apt-get remove python-configparser
+	\end{verbatim}
+	\item Docker-Compose installieren:
+	\begin{verbatim}
+		$ sudo pip3 -v install docker-compose
+	\end{verbatim}
+
+\end{enumerate}
+
+\subsection{Datenlogger-Skript}
+Im Verzeichnis mit den Dateien mit \verb|$ docker-compose up --build| den Docker-Container starten.
+
+\paragraph{Anpassung}
+In der \verb|docker-compose.yaml| können folgende Punkte angepasst werden:
+\begin{itemize}
+	\item Port an dem die Wetterstation angeschlossen ist
+	\item IP-Adresse des MQTT-Servers
+	\item Port des MQTT-Servers
+	\item MQTT-Topic
+	\item Intervall (in Sekunden) mit dem Wetterdaten abgefragt werden
+	\item Pfad zum Log-File
+	\item Die Log-Level, bei denen die jeweiligen Python-Logger-Handler loggen
+	\item Pfad zur Datei, die zum Watchdog-Reset beschrieben werden soll
+\end{itemize} 
+
+\subsection{Watchdog}
+Watchdog erst ganz zum Schluss starten, wenn das Programm ohne Probleme gestartet hat/läuft!
+
+Im Verzeichnis \verb|bashScripts| mit 
+\begin{verbatim}
+$ bash watchdogStart.sh
+\end{verbatim}
+das Skript ausführen um den Watchdog zu starten.
+
+
+\section{Webseite}
+Nach erfolgreicher Inbetriebnahme ist die Webseite unter \texttt{172.23.62.107:3000} aufrufbar mit den folgenden Zugangsdaten\footnote{Lassen sich bei Erstanmeldung ändern}
+
+\begin{verbatim}
+	Benutzername: admin
+	Passwort: admin
+\end{verbatim}
