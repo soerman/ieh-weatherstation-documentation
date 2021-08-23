@@ -1,3 +1,5 @@
+*.pdf
+*.tex.orig
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -109,11 +111,6 @@ acs-*.bib
 *.glo
 *.gls
 *.glsdefs
-*.lzo
-*.lzs
-
-# uncomment this for glossaries-extra (will ignore makeindex's style files!)
-# *.ist
 
 # gnuplottex
 *-gnuplottex-*
@@ -136,7 +133,7 @@ acs-*.bib
 # knitr
 *-concordance.tex
 # TODO Comment the next line if you want to keep your tikz graphics files
-*.tikz
+#*.tikz
 *-tikzDictionary
 
 # listings
@@ -228,9 +225,8 @@ pythontex-files-*/
 # xindy
 *.xdy
 
-# xypic precompiled matrices and outlines
+# xypic precompiled matrices
 *.xyc
-*.xyd
 
 # endfloat
 *.ttt
@@ -253,14 +249,8 @@ TSWLatexianTemp*
 # Kile
 *.backup
 
-# gummi
-.*.swp
-
 # KBibTeX
 *~[0-9]*
-
-# TeXnicCenter
-*.tps
 
 # auto folder when using emacs and auctex
 ./auto/*
@@ -271,6 +261,3 @@ TSWLatexianTemp*
 
 # standalone packages
 *.sta
-
-# Makeindex log files
-*.lpz

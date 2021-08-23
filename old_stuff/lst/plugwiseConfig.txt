@@ -1,0 +1,22 @@
+###### Plugwise Binding ######
+#
+# the serial port of the Stick, e.g. "COM1" for Windows or "/dev/ttyUSB0" for Linux
+# "stick" is reserved Plugwise ID
+stick.port=/dev/ttyUSB0
+# interval in ms to wait between messages sent on the ZigBee network
+stick.interval=150
+
+# "circleplus" is reserved Plugwise ID
+circleplus.mac=000D6F000278F9E6
+
+# the full MAC of the Plugwise device, e.g. "000D6F0000012345"
+one.mac=000D6F00028FD197
+two.mac=000D6F00028FD34E
+three.mac=000D6F00028FBB6F
+four.mac=000D6F00028FB8A3
+five.mac=000D6F00028FD2DA
+six.mac=000D6F00028FBBFC
+
+# optional Plugwise device type that defaults to "circle"
+# all possible types are: "circle", "circleplus", "scan", "sense", "stealth" or "switch"
+#<plugwise-id-1>.type=

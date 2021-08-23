@@ -1,0 +1,98 @@
+\documentclass{standalone}
+
+\begin{document}
+
+\tikzstyle{arrow} = [thick,->,-{Latex[length=2mm, width=2mm]}]
+\tikzstyle{dasharrow} = [thick,dashed,->,-{Latex[length=2mm, width=2mm]}]
+
+
+%flowchart multidocument
+\tikzset{
+  multidocument/.style={
+    shape=tape,
+    draw,
+    fill=white,
+    tape bend top=none,
+    double copy shadow},
+  manual input/.style={
+    shape=trapezium,
+    draw,
+    shape border rotate=90,
+    trapezium left angle=90,
+    trapezium right angle=80}}
+
+
+\begin{tikzpicture}[scale=0.5]
+
+\node (start) at (15,30) [draw, terminal,minimum width=3cm,minimum height=1cm] {START};
+\node(kreis1) at (15,27) [draw, circle, minimum width=0.2 cm] {};
+
+
+
+\node (proc1) at (15,23) [draw, process, align=left,minimum width=3cm,minimum height=2cm] {connect\\ to SQL DB};
+\node (datenbank) at (5,23) [cylinder, shape border rotate=90, draw,align = left, minimum height=3cm,minimum width=3cm]
+{weather \\ data};
+\coordinate (point4) at (5,-5);
+\node (decide1) at (15,17) [draw, decision,minimum width=2cm,minimum height=2cm] { error ?};
+
+\node (proc2) at (27,17) [draw, process, align=left,minimum width=3cm,minimum height=1cm] {write to log\\ and increase\\ error counter};
+\node (decide2) at (27,23) [draw, decision, align = left,minimum width=1cm,minimum height=1cm] {\tiny error count \\ \tiny too high ?};
+\node (delay1) at (21,27) [draw, rounded rectangle, rounded rectangle east arc=0pt, minimum height = 1 cm, minimum width = 2 cm] {delay};
+
+\node (proc7) at (37,23) [draw, process, align=left,minimum width=3cm,minimum height=2cm] {critical error; \\ send email\\ and die};
+\node(log) at (37,17) [tape,tape bend top=none,draw,align = left, font=\sffamily, minimum width = 3 cm, minimum height = 2 cm]{logfile};
+\coordinate (point7) at (32,16);
+\coordinate (point8) at (34,16);
+\node (stop) at (45,23) [draw, terminal,minimum width=3cm,minimum height=1cm] {TERMINATE};
+\coordinate (point5) at (31,22);
+\coordinate (point6) at (34,22);
+
+
+\node (proc3) at (15,10) [draw, process, align=left,minimum width=3cm,minimum height=2cm] {determine serial\\ port of weather\\ station};
+\node(kreis2) at (15,6) [draw, circle, minimum width=0.2 cm] {};
+\node[circle, minimum width=3 cm] at (0,10) {};
+
+\coordinate (point3) at (10,6);
+
+\node (proc4) at (15,2) [draw, process, align=left,minimum width=3cm,minimum height=2cm] {read and decode\\ data from \\ weather station};
+
+\node (proc5) at (15,-5) [draw, process, align=left,minimum width=3cm,minimum height=2cm] {write data\\ to DB};
+\node (decide3) at (15,-11) [draw, decision, align = left,minimum width=2cm,minimum height=2cm] {error?};
+
+
+\node (proc6) at (27,-11) [draw, process, align=left,minimum width=3cm,minimum height=2cm] {write to log \\and increase\\ error counter};
+\node (decide4) at (27,2) [draw, decision, align = left,minimum width=2cm,minimum height=2cm] {\tiny error count \\ \tiny too high ?};
+\coordinate (point9) at (31,2);
+
+\node (delay2) at (21,6) [draw, rounded rectangle, rounded rectangle east arc=0pt, minimum height = 1 cm, minimum width = 2 cm] {delay};
+
+\draw[arrow](start) -- (kreis1); 
+\draw[arrow](kreis1) -- (proc1);
+\draw[arrow](decide2)  |-   node[anchor=west,very near start] {no} (delay1);
+\draw[arrow](delay1) -- (kreis1);
+\draw[arrow](proc1) -- (decide1);
+\draw[arrow](decide1) -- node[anchor=west, very near start] {no} (proc3);
+\draw[arrow](decide1) -- node[anchor=north, very near start] {yes} (proc2);
+\draw[arrow](proc2) -- (decide2);
+\draw[arrow](proc3) -- (kreis2);
+\draw[arrow](kreis2)  -- (proc4);
+\draw[arrow](proc4) -- (proc5);
+\draw[arrow](proc5) -- (decide3);
+\draw[arrow](decide3) -| node[anchor=north, very near start] {no} (point3)--(kreis2);
+\draw[arrow](decide3) -- node[anchor=north, very near start] {yes} (proc6);
+\draw[arrow](proc6) -- (decide4);
+
+\draw[arrow](delay2) -- (kreis2);
+\draw[arrow] (proc7) -- (log);
+\draw[arrow] (proc7) -- (stop);
+\draw[arrow] (decide2) -- node[anchor=north, very near start] {yes} (proc7);
+\draw[arrow] (decide4) -| node[anchor=north, very near start] {yes} (point9)--(point5)--(point6);
+\draw[arrow](decide4)  |- node[anchor=west, very near start] {no} (delay2);
+
+\draw[dasharrow] (proc5) -| node[anchor=north, near start] { write } (point4) -- (datenbank);
+\draw[dasharrow] (proc1) -- node[anchor=north, midway] { connect } (datenbank);
+\draw[dasharrow] (proc2) -- (log);
+\draw[dasharrow] (proc6) -| (point7)--(point8);
+
+\end{tikzpicture}
+\end{document}

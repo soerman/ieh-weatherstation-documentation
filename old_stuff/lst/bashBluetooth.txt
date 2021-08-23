@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# MAC-Adressen der Bluetooth-Geraete
+# 1 = Laptop, 2 = Smartphone
+case $1 in
+	1) MAC="7C:E9:D3:B4:FC:7F";;
+   	2) MAC="00:73:8D:00:8E:66";;
+esac
+
+# wenn Geraet vorhanden ON zurueckgeben, ansonsten OFF
+if /usr/bin/l2ping -c l $MAC &> /dev/null
+	then
+    	echo "ON"
+    else
+    	echo "OFF"
+fi

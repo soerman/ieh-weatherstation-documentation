@@ -1,0 +1,23 @@
+/* Circle+ */
+
+/*(Schalter zum Ein-/Ausschalten)*/
+Switch circle_plus_Switch "Switch" <switch> { plugwise = "[ON:circleplus:state:15], [OFF:circleplus:state:15]"}
+
+/*(Anzeige der Uhrzeit)*/
+String circle_plus_Clock "[%s]" <clock> { plugwise="[circleplus:clock:15]"}
+
+/*(Anzeige des aktuellen Energieverbrauchs)*/
+Number circle_plus_Power "Power [%.1f W]" <energy> {plugwise="[circleplus:power:10]"}
+
+/*(Zeitstempel des aktuellen Energieverbrauchs)*/
+DateTime circle_plus_Power_Stamp "Power stamp [%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS]" <calendar> { plugwise="[circleplus:power-stamp:15]"}
+
+/*(Energieverbrauch der letzten Stunde)*/
+Number circle_plus_Last_Hour "Last hour [%.3f kWh]" <chart> { plugwise="[circleplus:lasthour:60]"}
+
+/*(Zeitstempel des Energieverbrauchs der letzten Stunde)*/
+DateTime circle_plus_Last_Hour_Stamp "Last hour stamp [%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS]" <calendar> { plugwise="[circleplus:lasthour-stamp:60]"}
+
+/*Circle 1 */
+
+[...]

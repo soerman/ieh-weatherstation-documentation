@@ -1,0 +1,18 @@
+$ nano /etc/systemd/system/test.service
+GNU nano 2.7.4 File: /etc/systemd/system/test.service                                           
+
+[Unit]
+Description=test Daemon
+After=syslog.target
+
+[Service]
+Type=simple
+ExecStart= /usr/bin/python3 /etc/test/test.py
+SyslogIdentifier=test.d
+StandardOutput=null
+StandardError=syslog
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

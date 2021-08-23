@@ -1,0 +1,178 @@
+\documentclass{include/thesisclass}
+% Main File - Based on thesisclass.cls
+% Comments are mostly in English
+% ------------------------------------------------------------------------------
+% Further files in folder:
+%  - include/cmds.tex (for macros and additional commands)
+%  - include/kitlogo.pdf (for titlepage)
+%  - lit.bib (bibtex bibliography database)
+%  - include/titlepage.tex (for layout of titelpage)
+% ------------------------------------------------------------------------------
+% Useful Supplied Packages:
+% amsmath, amssymb, mathtools, bbm, upgreek, nicefrac,
+% siunitx, varioref, booktabs, graphicx, tikz, multicol
+
+\usepackage{etoolbox} % for "\patchcmd" macro
+\makeatletter
+% No extra space between chapter number and chapter header lines:
+\patchcmd{\@makechapterhead} {\vskip 20}{\vskip 0} {}{}
+% Reduce extra space between chapter header and section header lines by 50%:
+\patchcmd{\@makechapterhead} {\vskip 40}{\vskip 20}{}{}
+\patchcmd{\@makeschapterhead}{\vskip 40}{\vskip 20}{}{} % for unnumbered chapters
+\makeatother
+
+\usepackage{standalone}
+
+\usepackage{listing}
+
+
+\usepackage{rotating}
+\usepackage{epsfig}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{epsfig,rotating,amsmath}
+%\usepackage[numbers]{natbib}
+\usepackage{hyperref}
+%\usepackage[3D]{movie15}
+\usepackage{siunitx}
+\usepackage{calc}
+\usepackage{float}
+\usepackage{mathtools}
+
+\usepackage{tabularx}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\usepackage{booktabs}
+\newcolumntype{C}{>{\Centering\arraybackslash}X} % centered "X" column
+
+\usepackage{lscape}
+\newcommand{\properparagraph}[1]{\paragraph{\textcolor{black}{#1}}\mbox{}\\}
+
+%%%%%%%%%%%%%%%% Tikz %%%%%%%%%%%%%%%%%
+\usepackage{flowchart}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes.symbols,shadows}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%% Abkürzungverzeichnis %%%
+\usepackage{nomencl}
+\let\abbrev\nomenclature
+
+% Abkürzungsverzeichnis LiveTex Version
+\renewcommand{\nomname}{Abkürzungsverzeichnis}
+\setlength{\nomlabelwidth}{.25\hsize}
+\renewcommand{\nomlabel}[1]{#1 \dotfill}
+\setlength{\nomitemsep}{-\parsep}
+\makenomenclature
+%\makeglossary
+%\usepackage{bmpsize}
+
+%% -------------------------
+%% |    Thesis Settings    |
+%% -------------------------
+% english or ngerman (new german für neue deutsche Rechtschreibung statt german)
+\SelectLanguage{ngerman}
+% details on this thesis
+\newcommand{\thesisauthor}{Olena Manzhura, Marvin Noll}
+\newcommand{\thesistopic}{Dokumentation IEH-Wetterstation}
+%\newcommand{\thesisentopic}{Name of the Topic in English}
+%\newcommand{\thesislongtopic}{Very long and very detailed description of the very interesting thesis topic (only necessary for pdfsubject tag).}
+\newcommand{\thesisinstitute}{Institut für Elektroenergiesysteme und Hochspannungstechnik}
+\newcommand{\thesisreviewerone}{Sebastian Hubschneider, Wolf Schulze}
+\newcommand{\thesisadvisorone}{} % to use: enter names and uncomment in titlepg
+%\newcommand{\thesispagehead}{Bachelor Thesis: \thesistopic} % page heading
+
+
+
+
+
+%% ---------------------
+%% |    PDF - Setup    |
+%% ---------------------
+% This information will appear embed into the PDF file as meta data, but will 
+% not be printed anywhere
+%\hypersetup
+%{
+%    pdfauthor={\thesisauthor},
+%    pdftitle={Bachelorarbeit: \thesistopic},
+%    pdfsubject={\thesislongtopic},
+%    pdfkeywords={kit,elektrotechnik,bachelor,thesis,\thesisauthor}
+%}
+
+
+
+
+
+%% --------------------------------------
+%% |    Settings for Word Separation    |
+%% --------------------------------------
+% Help for separation:
+% In German package the following hints are additionally available:
+% "- = Additional separation
+% "| = Suppress ligation and possible separation (e.g. Schaf"|fell)
+% "~ = Hyphenation without separation (e.g. bergauf und "~ab)
+% "= = Hyphenation with separation before and after
+% "" = Separation without a hyphenation (e.g. und/""oder)
+
+% Describe separation hints here:
+\hyphenation
+{
+    über-nom-me-nen an-ge-ge-be-nen
+    %Pro-to-koll-in-stan-zen
+    %Ma-na-ge-ment  Netz-werk-ele-men-ten
+    %Netz-werk Netz-werk-re-ser-vie-rung
+    %Netz-werk-adap-ter Fein-ju-stier-ung
+    %Da-ten-strom-spe-zi-fi-ka-tion Pa-ket-rumpf
+    %Kon-troll-in-stanz
+}
+
+\usepackage[citestyle=numeric,style=numeric,backend=biber]{biblatex}
+\addbibresource{lit.bib}
+\raggedbottom
+
+\begin{document}
+    % Titlepage and ToC
+    \FrontMatter
+    \input{include/titlepage}
+    
+    \begingroup    % in order to avoid listoffigures and
+    \tableofcontents                    % listoftables on new pages
+    \listoffigures
+    \listoftables
+    \endgroup
+    \cleardoublepage
+    
+    \MainMatter
+    \input{chap/inbetriebnahme/inbetriebnahme}
+    \input{chap/general/general}    
+
+    \Appendix
+    \chapter*{\appendixname} \addcontentsline{toc}{chapter}{\appendixname}
+    \input{chap/appendix/appendix}
+    %\chapter*{\appendixname} \addcontentsline{toc}{chapter}{\appendixname}
+    \addcontentsline{toc}{section}{Abkürzungsverzeichnis}
+    % das Abkürzungsverzeichnis entgültige Ausgeben
+    \fancyhead[L]{Abkürzungsverzeichnis} %Kopfzeile links
+    \newpage
+
+    % Bibliography
+    \nocite{*}
+    \printbibliography[heading=bibintoc]
+    %\bibliographystyle{alpha}
+    %\bibliography{lit}
+    % BIBTEX
+    % use if you want citations to appear even if they are not referenced to: 
+    % \nocite{*} or maybe \nocite{Kon64,And59} for specific entries
+    %\nocite{*}
+
+    % THEBIBLIOGRAPHY
+    %\begin{thebibliography}{000}
+    %    \bibitem{ident}Entry into Bibliography.
+    %\end{thebibliography}
+\end{document}

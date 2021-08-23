@@ -1,0 +1,26 @@
+sitemap plugwise label="Main Menu"
+{
+
+  Frame label="Circle+" {
+    Switch item=circle_plus_Switch 
+	Text item=circle_plus_Clock 
+	Text item=circle_plus_Power 
+	Text item=circle_plus_Power_Stamp 
+	Text item=circle_plus_Last_Hour 
+	Text item=circle_plus_Last_Hour_Stamp 
+  }
+
+  Frame label="Circle 1"{
+	Switch item=circle_one_Switch
+	Text item=circle_one_Clock
+	Text item=circle_one_Power
+	Text item=circle_one_Power_Stamp
+	Text item=circle_one_Last_Hour
+	Text item=circle_one_Last_Hour_Stamp
+}
+	
+Frame label="Circle 2"{
+	Switch item=circle_two_Switch
+	Text item=circle_two_Clock
+	Text item=circle_two_Power
+[...]

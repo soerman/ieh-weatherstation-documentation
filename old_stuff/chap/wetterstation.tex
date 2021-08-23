@@ -1,0 +1,307 @@
+\section{Auslesen der Daten von der Wetterstation}
+Die Daten der Wetterstation sollen sekündlich (höchstmögliche Auflösung bedingt durch die Wetterstation) ausgelesen und in einer Datenbank gespeichert werden. Dazu wird ein Python-Skript geschrieben, welches permanent laufen soll. Den zugehörigen Quellcode zeigt Listing \ref{lst:skript}. Die einzelnen Schritte sind im Code kommentiert. Die Daten werden mit Zeitstempel in die Datenbank gespeichert. Dieser ist auch der Primärschlüssel.
+
+\newpage
+
+\vspace*{\fill}
+\begin{figure}[H]
+	\centering
+	\includestandalone[width=1\textwidth]{Bilder/iehWeather}
+	\caption{Flussdiagramm des Python-Skriptes zum Auslesen der Wetterdaten}
+	\label{fig:logDiagram}
+\end{figure}
+
+\vspace*{\fill}
+
+%\vspace*{\fill}
+%\noindent
+%\hspace*{-\oddsidemargin}
+
+%\begin{figure}[H]
+%    \centering
+% \resizebox{\textwidth}{!}{\includegraphics[]{Bilder/iehWeather.tikz}}
+%    \resizebox{\textwidth}{!}{\input{Bilder/iehWeather.tikz}}
+%    \caption{Flussdiagramm des Python-Skriptes zum Auslesen der Wetterdaten}
+%    \label{fig:test}
+%\end{figure}
+%\vspace*{\fill}
+
+
+\newpage
+
+\lstinputlisting[label=lst:skript,caption = {Python-Skript zum Auslesen der Daten}, language = Python]{lst/logScript.py}
+
+\mbox
+
+\newpage
+
+\subsection{Scheduler}
+Soll ein Stück Programmcode zyklisch aufgerufen werden, kann zum Beispiel der jeweilige Code in einer Endlosschleife platziert werden. Die gewünschte Zykluszeit $T$ kann dann näherungsweise durch Einfügen einer Wartezeit $\tau_{sleep}$ in der Schliefe erreicht werden. Kann die Ausführungsdauer des zu taktenden Programmcodes $\tau_{code}$ gegenüber $T$ vernachlässigt werden, so gilt: \begin{equation}
+T\approx\tau_{sleep} \bigg\rvert_{\tau_{code} \ll \tau_{sleep}}
+\end{equation}
+Ist $\tau_{code}$ nicht zu vernachlässigen, ist eine genaue Taktung mit einer simplen Verzögerung nur schwer möglich, da dann die nötige Verzögerungszeit berechnet werden muss. Ist diese nicht konstant, wird die Berechnung zusätzlich erschwert.
+
+Es bietet sich dann der Einsatz eines Schedulers an. Dieser sorgt dafür, dass eine selbst definierte Funktion in einem einstellbaren Intervall aufgerufen wird.
+
+\subsubsection{APScheduler}
+\textbf{APScheduler} (\textbf{A}dvanced \textbf{P}ython Scheduler) ist eine Python-Bibliothek, die es ermöglicht, Funktionen ("'Jobs"') zeitlich zu verwalten. Es bestehen dabei drei verschiedene Arten, dies zu tun:
+\begin{enumerate}
+	\item \textbf{einfache Ausführung} zu einem späteren, vorgegebenen Zeitpunkt
+	\item \textbf{periodische Auführung}, bei der die Funktion in einem bestimmten Intervall wiederholt ausgeführt wird. Es besteht die Möglichkeit, zudem einen Start- und Endzeitpunkt anzugeben.
+	\item "'\textbf{cron-style}"'- Ausführung, bei der die Funktion zu einer bestimmten Uhrzeit ausgeführt wird. Auch hier besteht die Möglichkeit, einen Start- und Endzeitpunkt anzugeben. Diese Funktionsweise ähnelt dem "'Cron-Daemon"' in Linux bzw. anderen unixartigen Betriebssystemen.
+\end{enumerate}
+
+\paragraph{Installation}
+
+Eine beliebige Version wird mit folgender Zeile installiert (für "'x.x.x"' die gewünschte Version eintragen):\\ \texttt{sudo pip3 install apscheduler==x.x.x}. \\
+Für Python 3 benötigt man die aktuelle Version 3.3.1 (Stand Oktober 2017).
+
+\paragraph{Beispiel für eine periodische Ausführung}
+
+Ein Beispiel für das periodische Ausführen einer Funktion ist in Listing \ref{lst:apbeispiel} aufgeführt.\\
+Zunächst wird die Funktion, die periodisch ausgeführt werden soll definiert (im Beispiel ist das "'job\_function"'). Anschließend wird je nach Situation der entsprechende Scheduler ausgewählt. Im Beispiel wird der "'BackgroundScheduler"' gewählt, welcher eingesetzt wird, wenn einzig der Scheduler laufen soll. Weitere Arten können in der Dokumentation zum APScheduler nachgeschaut werden. \\
+Zum Schluss wird die vorher definierte Funktion dem Scheduler zugewiesen, der sie jede Sekunde ausführt.
+
+\lstinputlisting[label=lst:apbeispiel,caption = {Beispiel für periodische Ausführung}]{lst/periodAusf.py}
+
+
+\paragraph{Umsetzung beim Wetterdaten-Skript}
+
+\autoref{lst:apWetterdaten} zeigt das mit APScheduler realisierte Wetterdaten-Skript. Im Gegensatz zur Realisierung mit der "'\textbf{sleep}"'-Funktion wird das Auslesen der Daten jetzt nur \textbf{alle zwei Sekunden} ausgeführt. Dies liegt daran, dass die Ausführung des gesamten Codes etwas länger dauert. Es entsteht ein Konflikt, da die nächste Funktion aufgerufen wird, bevor die vorherigeabgeschlossen ist. Für Darstellungszwecke wurden Code-Abschnitte, die schon aus anderen Kapiteln bekannt sind, ausgelassen.
+
+\lstinputlisting[label=lst:apWetterdaten,caption = {Wetterdaten-Skript mit APScheduler}]{lst/apScheduler.py}
+
+\newpage
+
+\subsection{SQL Datenbank}
+
+\subsubsection{Verschieben der Datenbank auf externes USB-Laufwerk}
+Da der Raspberry Pi selbst nicht sehr viel Speicher besitzt, kann es sinnvoll sein, das Datenbank-Verzeichnis bzw. die zu speichernden Daten auf ein externes Laufwerk mit mehr Speicherkapazität zu verschieben.\\
+Normalerweise bindet Raspbian Jessie angeschlossene USB-Laufwerke \textbf{automatisch} im Pfad \texttt{/media/\{USERNAME\}/\{LABEL\}} ein. Dies geschieht aber nur, wenn der Benutzer angemeldet ist.\\
+Zum automatischen Einbinden (auch ohne Anmeldung) kann der Befehl \texttt{usbmount} genutzt werden. Allerdings besteht hier das Problem, dass man nicht sicher sein kann, unter welchem Verzeichnis das Laufwerk eingebunden wird und müsste dieses somit jedes Mal im Dateisystem suchen. Dieser Ansatz ist deshalb für Datenbank-Zwecke nicht geeignet.\\
+Im Folgenden werden die Schritte beschrieben, die benötigt werden, um eine Festplatte/einen USB-Stick einzubinden und einem festen Verzeichnis zuzuordnen.
+
+\paragraph{Einbinden des externen Laufwerks}
+
+\begin{enumerate}
+	\item \textbf{Überprüfen, welche Dateisysteme unterstützt werden: } \\
+	Damit das Dateisystem auf dem Laufwerk erkannt wird, muss das entsprechende Dateisystem-Modul installiert sein. Die vorhandenen Module können mit dem Befehl \texttt{ls -1 /lib/modules/\$(uname -r)/kernel/fs} aufgelistet werden.\\
+	Für NTFS-Partitionen wird das Paket \texttt{ntfs-3g} benötigt. Dieses sollte bei \textbf{Raspbian Jessie} automatisch installiert werden.
+	\item \textbf{Laufwerk identifizieren: } \\
+	Durch Aushängen des Laufwerks und anschließendes Einhängen in Kombination mit den Befehlen \texttt{lsblk} und \texttt{df -h} kann die Festplatte/der USB-Stick identifiziert werden.
+	Diese werden in der Regel mit "'\textbf{sda}"' , "'\textbf{sdb}"', usw. angezeigt. Die darauf befindlichen Partitionen werden mit "'\textbf{sda1}"', "'\textbf{sda2}"', ... bezeichnet.
+	\item \textbf{Bestimmen der UUID\footnote{\textbf{U}niversally \textbf{U}nique \textbf{Id}entifier - eindeutig für jedes Gerät bestimmt, solange es nicht formatiert wird}: }\\
+	Für das automatische Einbinden des Laufwerks nach Neustart des Systems wird die UUID des Gerätes benötigt. Mit \texttt{sudo blkid} wird die UUID, zusammen mit anderen Informationen, für jedes angeschlossene Gerät aufgelistet.
+	\item{\textbf{Laufwerk fest einem Mount-Point zuordnen: }\\
+		Mit \texttt{/etc/fstab} öffnet man die Datei \textbf{fstab}. In ihr sind die Dateisysteme eingetragen, mit denen die Partitionen auf dem Laufwerk formatiert sind. 
+		Das Laufwerk sollte in folgender Form eingetragen werden: \\
+		\texttt{\small UUID=uuid mountpoint dateisystem auto,nofail,sync,users,rw,umask=000   0   0
+		}\\
+		Statt "'uuid"' wird die jeweilige UUID des Laufwerks eingetragen.
+		"'mountpoint"' bezeichnet das Verzeichnis, an das später das Laufwerk gebunden werden soll (z.B. \texttt{/media/usb}). Die beim Laufwerk verwendete Formatierung wird statt "'dateisystem"' eingetragen (z.B. "'vfat"' für Dateisysteme, die mit "'FAT"' formatiert wurden). Die restlichen Optionen können bei Bedarf unter \cite{c6} nachgeschaut werden.}
+	
+	\item{\textbf{Erstellen des Verzeichnisses für den Mount-Point: }\\
+		Dies geschieht mit \texttt{sudo mkdir -p verzeichnispfad} (für obiges Beispiel \texttt{sudo mkdir -p /media/usb}). Anschließend wird das Laufwerk manuell eingehängt:  \texttt{sudo mount -a}.\\
+		Mit \texttt{df -h} und \texttt{lsblk} prüft man, ob das Laufwerk in das Verzeichnis eingehängt wurde, das in "'fstab"' angegeben wurde.
+		
+	} 
+\end{enumerate}
+
+\subsubsection{Abschätzung benötigter Speicherplatz}
+
+\subsubsection{Verschieben des Datenbank-Verzeichnisses auf das Laufwerk}
+
+
+\subsubsection{Fernzugriff auf die Datenbank}
+In der Standardkonfiguration eines MySQL-Servers ist der Zugriff auf die Datenbanken des Servers von außen aus Sicherheitsgründen gesperrt. Das bedeutet, der Zugriff auf die Daten ist nur indirekt z.B. über eine php-Seite möglich. Ist es hingegen gewünscht direkt auf den SQL-Server zuzugreifen, zum Beispiel über eine direkte TCP-Verbindung, oder eine Abstraktionsebene, wie ODBC\footnote{\textbf{O}pen \textbf{D}ata\textbf{b}ase \textbf{C}onnectivity}, dann muss der mySQL-Server dafür explizit konfiguriert werden. (Stand Juni 2017, mySQL-Version 5.17.18)
+Dazu werden folgende Schritte durchgeführt:
+
+\begin{enumerate}
+	\item In der Konfigurationsdatei \texttt{my.cnf} im Verzeichnis \texttt{/etc/mysql/} wird der Wert von \texttt{bind-address} (Standardwert \texttt{127.0.0.1}) auf \texttt{0.0.0.0} geändert. Dadurch werden Verbindungen von einer beliebigen IP-Adresse statt nur dem lokalen Computer erlaubt.
+	\item Es wird sichergestellt, dass der gewünschte Datenbankuser seine zugeteilten Rechte von jedem beliebigen Host aus ausüben kann. Dazu wird z.B. mit phpMyAdmin die Benutzerverwaltung geöffnet. Darin muss in der Spalte \texttt{host} des entsprechenden Benutzers der Wert \texttt{\%} eingetragen sein. Alternativ kann dies über das SQL-Kommando\footnote{SQL-Kommandos können zum Beispiel über phpMyAdmin \texttt{Server -> SQL} an den Server gesendet werden}
+	\begin{verbatim}
+	GRANT ALL PRIVILEGES ON *.* TO 'db_user'@'%'
+	IDENTIFIED BY '1234'
+	WITH GRANT OPTION;
+	FLUSH PRIVILEGES;
+	\end{verbatim}
+	erreicht werden. Dabei ist \texttt{db\_user} der Benutzer mit dem Passwort \texttt{1234} und bekommt alle Rechte auf dem Server(Aus offensichtlichen Gründen nur für Testzwecke empfohlen).
+\end{enumerate}
+
+
+\paragraph{Unmount}
+http://ramiro.org/blog/usbdrive-unter-linux-formatieren/
+
+
+\subsubsection{Datenbankzugriff mit ODBC}
+Mit Hilfe eines ODBC(\textbf{O}pen \textbf{D}ata\textbf{b}ase \textbf{C}onnectivity) Connectors ist ein einfacher Zugriff auf viele Datenbanken möglich. Der Vorteil in der Benutzung eines ODBC-Connectors liegt darin, dass durch den Connector die Kommunikation mit der Datenquelle soweit abstrahiert wird, dass ein einfacher Zugriff auf die Daten möglich wird, ohne auf die Datenquelle direkt zugreifen zu müssen. Dadurch werden Programmierfehler vermieden und der Typ der Datenquelle spielt nur noch eine untergeordnete Rolle. Prinzipiell kann die MySQL-Datenbank so beispielsweise durch eine PostgreSQL oder eine MS-Access-Datenbank ersetzt werden, ohne dass Änderungen am Programmcode nötig wären.
+Nachteilig ist, dass es für die Zielplattform einen ODBC-Treiber für die jeweilige Datenbankanwendung geben muss. Für Windows und gängige Linux-Distributionen ist dies jedoch meistens der Fall.
+
+\paragraph{Installation des MySQL ODBC-Treibers unter Windows}
+
+Für die Nutzung des ODBC-Connectors für mySQL unter Windows (x86 und x64) sind die folgenden Schritte erforderlich:
+\begin{enumerate}
+	\item Download des ODBC-Treibers (unter: \texttt{https://dev.mysql.com/downloads/\\connector/odbc/}). Dabei ist zu beachten, dass 32-bit Anwendungen den 32-bit Treiber und 64-bit Anwendungen den 64-Bit Treiber benötigen.
+	\item Installation des heruntergeladenen Treibers
+	\item Öffnen des Datenquellenadministrationstools:
+	\begin{itemize}
+		\item 32-Bit: \texttt{C:\textbackslash Windows\textbackslash SysWOW64\textbackslash odbcad32.exe}
+		\item 64-bit: \texttt{C:\textbackslash Windows\textbackslash System32\textbackslash odbcad32.exe}
+	\end{itemize}
+	\item \texttt{User DSN -> Add...}
+	\item \texttt{'MySQL ODBC x.x Unicode Driver' -> Finish}
+	\item Parameter der Verbindung eingeben:
+	\begin{itemize}
+		\item \texttt{Data Source Name}: beliebiger Name
+		\item \texttt{TCP/IP Server}: IP-Adresse des mySQL-Servers 
+		\item \texttt{User}: Benutzer (mit passenden Rechten)
+		\item \texttt{Password}: Passwort des Benutzers
+		\item \texttt{Database}: gewünschte Datenbank auswählen
+	\end{itemize}
+	\item \texttt{Ok}
+\end{enumerate}
+
+
+\newpage
+
+%\subsection{WAMP}
+
+%\lstinputlisting[caption = {wampThiesWetterstationToESHLWamp}, language = Python]{thiesToWAMP.py}
+
+
+%\lstinputlisting[caption = {wampWetterstationSubscriber}, language = Python]{wetterstationSubs.py}
+
+%\newpage
+
+
+
+\subsection{Python Skripte für die Wetterstation als Daemon(Systemdienst)}
+\subsubsection{Motivation}
+Wenn ein Programm als Dienst/Hintergrundprogramm/Daemon dauerhaft ausgeführt werden soll, sollten die folgenden Fragen geklärt werden:
+\begin{itemize}
+	\item Wann und von wem wird der Dienst gestartet?
+	\item Wann und von wem wird der Dienst beendet?
+	\item Was passiert, wenn ein Laufzeitfehler auftritt?
+	\item Was passiert, wenn das Dienstprogramm unerwartet abstürzt?
+\end{itemize}
+
+Für Testzwecke ist es meist ausreichend, das Programm von Hand zu starten und gelegentlich manuell zu prüfen, ob Fehler aufgetreten sind. Ist die Entwicklung des Programms abgeschlossen, ist es zweckmäßig es vom System als Dienst starten zu lassen. Dienste, wie \textit{SystemVinit} oder das modernere \textit{systemd} ermöglichen es, Programme automatisch zu starten, bei Bedarf zu beenden und zu überwachen.
+
+\subsubsection{Minimalbeispiel Daemon mit \textit{systemd}}
+In diesem Abschnitt wird anhand eines Beispiels demonstriert, wie mit Hilfe von \textit{systemd} ein eigener Dienst erstellt wird. Dazu ist eine ausführbare, nicht interaktive\footnote{d.h. das Programm muss ohne Benutzerinteraktion lauffähig sein, darf also keine GUI oder Konsoleninteraktion enthalten. Laufzeitfehler sollten, wenn möglich, abgefangen werden.} Programmdatei nötig.
+
+Die folgenden Schritte sorgen dafür, dass die Datei \texttt{test.py} beim Systemstart von systemd automatisch gestartet wird. Beim Herunterfahren des Systems wird das Programm lediglich abgebrochen. Die Vorgehensweise ist unter \textit{raspberrypi 4.9.80-v7+} getestet.
+
+\begin{enumerate}
+	\item im Ordner \texttt{/etc} wird mit root-Rechten ein neuer Ordner für den Dienst angelegt:
+	\begin{lstlisting}
+	$ sudo mkdir /etc/test
+	\end{lstlisting}
+	
+	\item Die ausführbare Programmdatei(In diesem Beispiel "'test.py"', bestehend aus einer Endlosschleife mit einer Verzögerung) wird in den neu erstellten Ordner verschoben:
+	\begin{lstlisting}
+	$ sudo mv test.py /etc/test/test.py
+	\end{lstlisting}
+	
+	\item Der Besitzer der Datei sollte root sein und die Datei muss ausführbar sein. Der Erfolg der Operationen wird anschließend mit \texttt{ls -l} überprüft:
+	\begin{lstlisting}
+	$ cd /etc/test
+	$ sudo chown root test.py
+	$ sudo chmod 755 test.py
+	$ ls -l
+	-rwxrwxr-x 1 root root 2638 Jun 20 20:45 test.py
+	\end{lstlisting}
+	
+	\item Es wird überprüft, ob das Programm als root ausgeführt werden kann. Insbesondere mit \textit{pip} installierte Zusatzpakete können zu Problemen führen, da diese i.d.R. nur für die aktuellen Benutzer installiert werden.
+	\begin{lstlisting}
+	$ sudo python3 /etc/test/test.py
+	
+	\end{lstlisting}
+	
+	\item Für den Dienst wird eine \texttt{*.service} Konfigurationsdatei benötigt. Diese wird im Verzeichnis \texttt{/etc/systemd/system} angelegt:
+	
+	\lstinputlisting[label=lst:service,caption = {Beispiel für eine Service-Konfigurationsdatei}]{lst/service.txt}
+	
+	Wichtig ist, dass unter \texttt{ExecStart} der \textbf{absolute} Pfad zum Interpreter anzugeben ist. Im Beispiel würde also \texttt{python3 /etc/test/test.py} nicht funktionieren.
+	
+	\item Damit der neu erstellte Dienst systemd bekannt wird und automatisch gestartet wird, wird \textit{systemctl} verwendet. Ob der Dienst erfolgreich gestartet werden konnte, wird \texttt{systemctl status} überprüft.
+	\begin{lstlisting}
+	$ sudo systemctl daemon-reload
+	$ sudo systemctl enable test.service
+	$ systemctl status test.service
+	o test.service - test Daemon
+	Loaded: loaded (/etc/systemd/system/test.service; enabled; vendor preset: enabled)
+	Active: active (running) since Wed 2018-06-20 20:46:26 CEST; 3 weeks 3 days ago
+	Main PID: 4282 (python3)
+	CGroup: /system.slice/test.service
+	|-4282 /usr/bin/python3 /etc/test/test.py
+	
+	Jun 20 20:46:26 raspberrypi systemd[1]: Started test Daemon.
+	\end{lstlisting}
+	
+	\item Nach einem Neustart(\texttt{sudo restart}) sollte der Dienst automatisch gestartet werden.
+	
+	\item Dienste können mit systemctl gestoppt(\texttt{systemctl stop test.service}), neu gestartet(\texttt{systemctl restart test.service}) oder deaktiviert(\texttt{systemctl disable test.service}) werden.
+\end{enumerate}
+
+\newpage
+
+\subsection{Starten der Wetterstationssoftware als Daemon}
+Für die Software der Wetterstation werden, gemäß der Unix Philosophie \textit{"'Make each program do one thing well. To do a new job, build afresh rather than complicate old programs by adding new "'features"'"'}, zwei Dienste angelegt:
+\begin{itemize}
+	\item \textbf{ieh\_WetterLogd:} Schreibt die Live-Wetterdaten kontinuierlich in die Datenbank
+	\item \textbf{ieh\_WetterAveraged:} Bildet über mehrere festgelegte Intervalle Mittelwerte der Wetterdaten und schreibt diese in die Datenbank.
+\end{itemize}
+
+Dazu wird, wie oben beschrieben, vorgegangen. Das Ergebnis:
+\begin{lstlisting}
+pi@raspberrypi:/etc/iehWetter $ cd /etc/iehWetter/
+pi@raspberrypi:/etc/iehWetter $ ls -l
+total 20
+-rwxr-xr-x 1 root root 5116 Jul 15 12:37 wetterAveraged.py
+-rwxrwxr-x 1 root root 2638 Jun 20 20:45 wetterLogd.py
+pi@raspberrypi:/etc/iehWetter $ cd /etc/systemd/system/
+pi@raspberrypi:/etc/systemd/system $ ls -l | grep ieh
+-rw-r--r-- 1 root root  285 Jul 15 12:47 ieh_wetterAverage.service
+-rw-r--r-- 1 root root  321 Jun 20 20:46 ieh_wetterLog.service
+pi@raspberrypi:/etc/systemd/system $ systemctl status ieh_wetterLog.service 
+o ieh_wetterLog.service - IEH wetter logger daemon for DLXmet weather station over RS232
+Loaded: loaded (/etc/systemd/system/ieh_wetterLog.service; enabled; vendor preset: enabled)
+Active: active (running) since Wed 2018-06-20 20:46:26 CEST; 3 weeks 3 days ago
+Main PID: 4282 (python3)
+CGroup: /system.slice/ieh_wetterLog.service
+|-4282 /usr/bin/python3 /etc/iehWetter/wetterLogd.py
+
+Jun 20 20:46:26 raspberrypi systemd[1]: Started IEH wetter logger daemon for DLXmet weather station over RS232.
+pi@raspberrypi:/etc/systemd/system $ systemctl status ieh_wetterAverage.service 
+o ieh_wetterAverage.service - IEH wetter averager
+Loaded: loaded (/etc/systemd/system/ieh_wetterAverage.service; enabled; vendor preset: enabled)
+Active: active (running) since Sun 2018-07-15 12:58:54 CEST; 3h 32min ago
+Main PID: 13412 (python3)
+CGroup: /system.slice/ieh_wetterAverage.service
+|-13412 /usr/bin/python3 /etc/iehWetter/wetterAveraged.py
+
+Jul 15 12:58:54 raspberrypi systemd[1]: Started IEH wetter averager.
+\end{lstlisting}
+
+
+
+\subsection{Überwachung der Systemauslastung mit \textit{sa}}
+
+%TODO:
+\begin{itemize}
+	\item einrichtung sysstat
+	\item sar
+	\item isag o.Ä.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+

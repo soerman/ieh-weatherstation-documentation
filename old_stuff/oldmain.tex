@@ -1,0 +1,172 @@
+\documentclass[enabledeprecatedfontcommands,12pt,oneside,pdftex]{scrbook}
+
+\usepackage{selinput}
+\SelectInputMappings{
+  adieresis={ä},
+  germandbls={ß},
+}
+\usepackage[ngerman]{babel}
+\usepackage{siunitx}
+\usepackage{booktabs} 
+\usepackage{listings}
+\usepackage{color}
+\usepackage{float}
+\usepackage{subfigure}
+\usepackage[export]{adjustbox}
+\usepackage{gensymb}
+\usepackage[numbers,square]{natbib}
+\usepackage{amsmath}
+\usepackage{tabularx}
+\bibliographystyle{abbrvdin}
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{numbers=left,
+	numberstyle=\tiny,
+	numbersep=5pt,
+	breaklines=true,
+	showstringspaces=false,
+	frame=l ,
+	xleftmargin=15pt,
+	xrightmargin=15pt,
+	basicstyle=\ttfamily\scriptsize,
+	stepnumber=1,
+	keywordstyle=\color{blue},          % keyword style
+  	commentstyle=\color{dkgreen},       % comment style
+  	stringstyle=\color{mauve}         % string literal style
+}
+\lstset{language=Python}
+
+\usepackage[automark, headsepline]{scrpage2}
+% Ermöglichung von Hyperlinks (PDF-Bookmarks)
+\usepackage{hyperref}
+
+%Graphiken
+\usepackage{graphicx}
+\graphicspath{{Bilder/}}
+
+
+\begin{document}
+% ----------------------------------------------------------------------------
+\titlehead{IEH - 2017}
+\subject{Bericht HiWi-Tätigkeit}
+\title{My Own Smarthome \\[1cm] 
+\includegraphics[width=.5\linewidth]{titelbild} 
+} 
+\subtitle{}
+\author{Olena Manzhura, Marvin Noll}
+\publishers{betreut von Sebastian Hubschneider}
+
+\maketitle
+
+% ----------------------------------------------------------------------------
+% Inhaltsverzeichnis:
+\clearpage
+\pdfbookmark{\contentsname}{toc}
+\tableofcontents
+
+% ----------------------------------------------------------------------------
+
+% Definition der Kopf- und Fußzeile
+\pagestyle{scrheadings}
+\ohead{\pagemark}
+\chead{}
+\ihead{\headmark}
+\ofoot{}
+\cfoot{}
+\ifoot{}
+
+
+\input{wetterstation.tex}
+\input{smarthome.tex}
+\input{webseite.tex}
+
+\appendix
+\chapter{Anhang}
+\section{Einrichten einer statischen IP-Adresse}
+Um dem Raspberry Pi eine statische IP-Adresse zuzuweisen, müssen in die Konfigurationsdatei \textbf{/etc/network/interfaces} folgende Zeilen hinzugefügt werden:
+
+\begin{verbatim}
+# Ethernet
+auto eth0
+allow-hotplug eth0
+iface eth0 inet static
+address 192.168.1.2
+netmask 255.255.255.0
+gateway 192.168.1.1
+dns-nameservers 192.168.1.1
+\end{verbatim}
+Die entsprechenden Punkte müssen dabei gegebenenfalls an das eigene Netzwerk angepasst werden.\\
+In \textbf{Raspbian Jessie} muss zudem der DHCP-Client deaktiviert werden (falls dieser sicher nicht gebraucht wird), da sonst diese Art der Konfiguration nicht funktioniert. Dies geschieht mit 
+
+\begin{verbatim}
+sudo service dhcpcd stop
+sudo systemctl disable dhcpcd
+\end{verbatim}
+
+Falls man \textbf{nicht} über SSH verbunden ist, kann man entweder mit "'\texttt{sudo service networking restart}"' das \textbf{networking} oder das Interface \textbf{eth0} mittels "'\texttt{sudo ifdown eth0}"' und "'\texttt{sudo ifup eth0}"' neustarten.
+
+
+\section{Serielle Schnittstelle zum Raspberry Pi}
+
+Zur Nutzung der Schnittstelle muss diese zunächst im Konfigurationsmenü unter 'Advanced Options' eingeschaltet werden. Anschließend können die GPIO-Pins 4 und 5 als Tx bzw. Rx genutzt werden. Zum Testen der Funktionsfähigkeit wird die Software \texttt{minicom} genutzt. Durch den Befehl \texttt{sudo minicom -b 115200 -D /dev/ttyS0 -o} lässt sich die Schnittstelle öffnen. Pin 4 und Pin 5 werden mit einem Kabel verbunden und per \texttt{minicom} Zeichen gesendet. Diese erscheinen in der Konsole.
+
+
+
+\section{FHEM-Modul für Plugwise-Steckdosen}
+FHEM bietet ein internes Modul an, um die Steckdosen anzusprechen und zu konfigurieren. Um dieses zu benutzen, legt man ein neues device an (define myPlugwise Plugwise /dev/ttyUSB0). Dadurch wird der Stick definiert.
+
+
+Die Abbildungen unten zeigen das FHEM-Menü und ausgelesene Daten (Energieverbrauch).\newline
+
+\begin{figure}[H]
+  \caption{FHEM Hauptseite}
+  \centering
+  \includegraphics[width=6cm]{Home1}
+\end{figure}
+
+\begin{figure}[H]
+  \caption{Konfigurationsmenü des Plugwise Sticks}
+  \centering
+  \includegraphics[width=6cm]{PWStick}
+\end{figure}
+
+\begin{figure}[H]
+  \caption{Ausgelesener Energieverbrauch (Ausschnitt)}
+  \centering
+  \includegraphics[width=0.5\textwidth]{FHEMPowerlogklein}
+\end{figure}
+
+\subparagraph{Probleme}\mbox{} \\
+Damit die Circles überhaupt gefunden werden, muss versucht werden, parallel zu FHEM andersweitig die Steckdosen anzusprechen, z.B. mittels \texttt{plugwise-util}. Dabei findet FHEM nur einige der Steckdosen. Außerdem können nach einer Weile die Steckdosen nicht mehr gesteuert werden.\newline \newline
+
+
+
+
+
+% ----------------------------------------------------------------------------
+
+\begin{thebibliography}{99}
+\bibitem{c1}https://de.wikipedia.org/wiki/OpenHAB (abgerufen am 22.07.2017)
+\bibitem{c2}http://docs.openhab.org/installation/linux.html (abgerufen am 22.07.2017)
+\bibitem{c3}http://docs.openhab.org/configuration/items.html
+\bibitem{c4}http://docs.openhab.org/addons/bindings/plugwise1/readme.html\#pushed-state
+\bibitem{c5}https://de.wikipedia.org/wiki/LabVIEW (abgerufen am 28.08.2017)
+\bibitem{c6}https://wiki.ubuntuusers.de/mount/\#Optionen
+\bibitem{c7}https://www.elektronik-kompendium.de/sites/raspberry-pi/2012181.htm
+\end{thebibliography}
+
+\end{document}
+© 2019 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
