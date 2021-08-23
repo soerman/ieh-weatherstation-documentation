@@ -59,6 +59,12 @@ herunterladen. Ins Verzeichnis wechseln und mit \verb|docker-compose up| die Con
 \newpage
 
 \section{Raspberry Pi}
+Vor dem Installieren der Pakete ein Update und Upgrade durchführen:
+\begin{verbatim}
+$ sudo apt-get -y update 
+$ sudo apt-get -y upgrade
+$ sudo apt -y autoremove
+\end{verbatim}
 
 \subsection{git}
 \texttt{git} wird mit \verb|$ sudo apt install git| installiert.\newline
@@ -68,12 +74,6 @@ Im gewünschten Verzeichnis, z.B. im Home-Verzeichnis, das Repo mit
 \end{verbatim}
 herunterladen. 
 
-Vor dem Installieren der Pakete ein Update und Upgrade durchführen:
-\begin{verbatim}
-$ sudo apt-get -y update 
-$ sudo apt-get -y upgrade
-$ sudo apt -y autoremove
-\end{verbatim}
 
 \subsection{Feste IP-Adresse und log2ram einstellen}
 In das Repo-Verzeichnis wechseln. Im Ordner \verb|bashScripts| das Skript zum Einstellen der festen IP-Adresse (172.23.62.255) und \texttt{log2ram} mit 
